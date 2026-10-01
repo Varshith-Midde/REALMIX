@@ -1,0 +1,728 @@
+/* REAL-LIFE QUEST - 3D UI & Spatial Depth Enhancements */
+
+/* 3D Global Perspective */
+:root {
+  --perspective-default: 1200px;
+  --card-3d-depth: 40px;
+  --glow-3d: 0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 30px rgba(168, 85, 247, 0.25);
+  --boss-3d-glow: 0 25px 50px -10px rgba(239, 68, 68, 0.35), 0 0 40px rgba(220, 38, 38, 0.4);
+  --gold-3d-shadow: 0 6px 0 #92400e, 0 12px 25px rgba(245, 158, 11, 0.4);
+  --purple-3d-shadow: 0 6px 0 #581c87, 0 12px 25px rgba(147, 51, 234, 0.45);
+}
+
+/* 3D Background Canvas */
+#threeDCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.85;
+}
+
+/* Ensure content sits above 3D background canvas */
+.app-header, .main-content, .mobile-nav-bar, .modal-overlay {
+  position: relative;
+  z-index: 10;
+}
+
+/* 3D Card Foundation */
+.rpg-card, .quest-card, .shop-item-card, .achievement-card, .chapter-node, .stat-metric-card {
+  transform-style: preserve-3d;
+  will-change: transform;
+  transition: transform 0.15s ease-out, box-shadow 0.25s ease, border-color 0.25s ease;
+  position: relative;
+}
+
+/* Dynamic Holographic Glare overlay created by tilt engine */
+.card-glare {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.15) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  mix-blend-mode: overlay;
+  z-index: 10;
+}
+
+/* 3D Elevated Elements inside cards (Pop out toward viewer) */
+.tilt-depth-low {
+  transform: translateZ(15px);
+  transform-style: preserve-3d;
+}
+
+.tilt-depth-mid {
+  transform: translateZ(30px);
+  transform-style: preserve-3d;
+}
+
+.tilt-depth-high {
+  transform: translateZ(50px);
+  transform-style: preserve-3d;
+}
+
+/* 3D Tactical Arcade Buttons with Physical Depth */
+.btn-primary {
+  transform: translateZ(25px);
+  box-shadow: 0 5px 0 #581c87, 0 10px 20px rgba(0, 0, 0, 0.4);
+  transition: all 0.1s ease;
+}
+
+.btn-primary:hover {
+  transform: translateZ(30px) translateY(-2px);
+  box-shadow: 0 7px 0 #581c87, 0 14px 28px rgba(147, 51, 234, 0.5);
+}
+
+.btn-primary:active {
+  transform: translateZ(20px) translateY(4px);
+  box-shadow: 0 1px 0 #581c87, 0 4px 10px rgba(0, 0, 0, 0.6);
+}
+
+.btn-gold {
+  transform: translateZ(25px);
+  box-shadow: 0 5px 0 #78350f, 0 10px 20px rgba(245, 158, 11, 0.35);
+  transition: all 0.1s ease;
+}
+
+.btn-gold:hover {
+  transform: translateZ(30px) translateY(-2px);
+  box-shadow: 0 7px 0 #78350f, 0 14px 28px rgba(245, 158, 11, 0.55);
+}
+
+.btn-gold:active {
+  transform: translateZ(20px) translateY(4px);
+  box-shadow: 0 1px 0 #78350f, 0 4px 10px rgba(0, 0, 0, 0.6);
+}
+
+.btn-secondary {
+  transform: translateZ(20px);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.6), 0 8px 16px rgba(0, 0, 0, 0.3);
+  transition: all 0.1s ease;
+}
+
+.btn-secondary:hover {
+  transform: translateZ(25px) translateY(-2px);
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.7), 0 12px 22px rgba(0, 0, 0, 0.4);
+}
+
+.btn-secondary:active {
+  transform: translateZ(15px) translateY(3px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.8), 0 3px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* 3D Floating Avatars and Frames */
+.hero-avatar-frame {
+  transform: translateZ(35px);
+  box-shadow: 
+    0 10px 25px -5px rgba(168, 85, 247, 0.5),
+    inset 0 2px 4px rgba(255, 255, 255, 0.3),
+    inset 0 -4px 8px rgba(0, 0, 0, 0.5);
+  border: 2px solid rgba(192, 132, 252, 0.8);
+}
+
+.boss-avatar-frame {
+  transform: translateZ(40px);
+  box-shadow: 
+    0 15px 35px -5px rgba(239, 68, 68, 0.6),
+    inset 0 2px 6px rgba(255, 255, 255, 0.3),
+    inset 0 -6px 12px rgba(0, 0, 0, 0.7);
+  animation: bossFloat3D 3.5s ease-in-out infinite alternate;
+}
+
+@keyframes bossFloat3D {
+  0% { transform: translateZ(35px) translateY(0px) rotate(0deg); }
+  50% { transform: translateZ(55px) translateY(-8px) rotate(2deg); }
+  100% { transform: translateZ(35px) translateY(0px) rotate(0deg); }
+}
+
+/* 3D Isometric Chapter Roadmaps */
+.chapter-node {
+  transform: perspective(1000px) rotateX(2deg);
+  box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.8), 0 0 1px rgba(255, 255, 255, 0.1);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+}
+
+.chapter-node:hover {
+  transform: perspective(1000px) rotateX(0deg) translateZ(10px) translateY(-4px);
+  box-shadow: 0 25px 50px -10px rgba(147, 51, 234, 0.25), 0 0 20px rgba(168, 85, 247, 0.2);
+}
+
+/* 3D Holographic Foil Effect on Legendary Cards */
+.rpg-card-gold::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(115deg, transparent 20%, rgba(245, 158, 11, 0.15) 45%, rgba(251, 191, 36, 0.3) 50%, rgba(168, 85, 247, 0.2) 55%, transparent 80%);
+  pointer-events: none;
+  background-size: 200% 200%;
+  animation: foilShimmer 6s linear infinite;
+  opacity: 0.6;
+}
+
+@keyframes foilShimmer {
+  0% { background-position: 200% 0%; }
+  100% { background-position: -200% 0%; }
+}
+
+/* 3D Boss Arena Arena Platform */
+.boss-arena-platform {
+  position: relative;
+  perspective: 1200px;
+  transform-style: preserve-3d;
+}
+
+.boss-arena-stage {
+  border-radius: 50%;
+  width: 240px;
+  height: 240px;
+  margin: 0 auto;
+  position: relative;
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.25) 0%, rgba(15, 18, 32, 0.8) 70%, transparent 100%);
+  box-shadow: 0 0 60px rgba(239, 68, 68, 0.4), inset 0 0 30px rgba(220, 38, 38, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotateX(55deg);
+  transform-style: preserve-3d;
+}
+
+.boss-floating-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -80%) translateZ(80px);
+  font-size: 6rem;
+  filter: drop-shadow(0 20px 30px rgba(0,0,0,0.8)) drop-shadow(0 0 40px rgba(239, 68, 68, 0.8));
+  animation: floatBossCore 4s ease-in-out infinite;
+}
+
+@keyframes floatBossCore {
+  0%, 100% { transform: translate(-50%, -80%) translateZ(80px) rotateY(0deg) translateY(0); }
+  50% { transform: translate(-50%, -80%) translateZ(110px) rotateY(15deg) translateY(-15px); }
+}
+
+/* 3D Glass Modals */
+.modal-box {
+  transform-style: preserve-3d;
+  box-shadow: 
+    0 30px 80px -15px rgba(0, 0, 0, 0.9),
+    0 0 40px rgba(168, 85, 247, 0.25),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2);
+}
+
+/* ───── ENHANCED 3D PREMIUM EFFECTS ───── */
+
+/* Neon Scan-Line Overlay on full page (subtle CRT depth effect) */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1000;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+}
+
+/* HUD header extra glow bottom border */
+.app-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(168,85,247,0.5), rgba(245,158,11,0.4), transparent);
+}
+
+/* Levitation animation for hero card */
+@keyframes cardLevitate {
+  0%, 100% { transform: translateY(0px) rotateX(1deg); }
+  50% { transform: translateY(-6px) rotateX(0deg); }
+}
+
+.hero-card-levitate {
+  animation: cardLevitate 5s ease-in-out infinite;
+}
+
+/* XP bar animated shimmer glow */
+.hud-xp-fill::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 20px; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+  animation: xpShimmer 2s ease-in-out infinite;
+  border-radius: inherit;
+}
+
+@keyframes xpShimmer {
+  0% { transform: translateX(-20px); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translateX(0); opacity: 0; }
+}
+
+/* Gold coin spinning effect */
+@keyframes coinSpin {
+  0% { transform: rotateY(0deg) scale(1); }
+  45% { transform: rotateY(90deg) scale(0.85); }
+  50% { transform: rotateY(90deg) scale(0.85); }
+  100% { transform: rotateY(360deg) scale(1); }
+}
+
+.gold-spin {
+  display: inline-block;
+  animation: coinSpin 1.8s ease-in-out infinite;
+}
+
+/* Boss HP bar critical pulse when < 20% */
+.hp-bar-critical {
+  animation: hpCriticalFlash 0.8s ease-in-out infinite !important;
+}
+
+@keyframes hpCriticalFlash {
+  0%, 100% { box-shadow: 0 0 8px rgba(239,68,68,0.8); }
+  50% { box-shadow: 0 0 25px rgba(239,68,68,1); }
+}
+
+/* Quest card hover pop-out with depth light */
+.quest-card:hover {
+  transform: perspective(1000px) translateY(-5px) translateZ(8px) rotateX(-1deg);
+  box-shadow: 0 20px 40px -10px rgba(0,0,0,0.7), 0 0 20px rgba(168,85,247,0.15);
+}
+
+/* Achievement card glow on unlock */
+.achievement-card.unlocked {
+  background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(20,14,5,0.9)) !important;
+  border-color: rgba(245,158,11,0.4) !important;
+  box-shadow: 0 0 20px rgba(245,158,11,0.15), 0 6px 0 rgba(120,53,15,0.6);
+}
+
+/* Neon border glow on active campaign card */
+.active-campaign-card {
+  border: 1px solid rgba(168,85,247,0.5) !important;
+  box-shadow: 0 0 0 1px rgba(168,85,247,0.2), 0 0 25px rgba(147,51,234,0.15), inset 0 0 20px rgba(147,51,234,0.04);
+}
+
+/* Premium glassmorphism modal enhancement */
+.modal-overlay.active .modal-box {
+  animation: modalAppear 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modalAppear {
+  0% { transform: scale(0.85) translateY(30px); opacity: 0; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+/* Sparkle floating particles around level-up area */
+@keyframes sparkleFloat {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-60px) scale(0.3); opacity: 0; }
+}
+
+.sparkle-particle {
+  position: absolute;
+  pointer-events: none;
+  font-size: 1rem;
+  animation: sparkleFloat 1.5s ease-out forwards;
+}
+
+/* 3D Nav tabs glow on active */
+.nav-tab-btn.active {
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 20%; right: 20%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(192,132,252,0.9), transparent);
+  border-radius: 2px;
+}
+
+/* Streak flame pulse */
+.streak-badge {
+  animation: flamePulse 2s ease-in-out infinite;
+}
+
+@keyframes flamePulse {
+  0%, 100% { filter: drop-shadow(0 0 3px rgba(249,115,22,0.4)); }
+  50% { filter: drop-shadow(0 0 10px rgba(249,115,22,0.8)); }
+}
+
+/* 3D crystal tilt effect on rpg-card */
+.rpg-card {
+  transition: transform 0.18s ease-out, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+/* Animated gradient text for section titles */
+.section-title {
+  background: linear-gradient(135deg, #fff 0%, #c084fc 40%, #fbbf24 80%, #fff 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientShift 4s ease-in-out infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+/* ---------------- STUDY WITH PLAYING & TEACHER AI ENHANCEMENTS ---------------- */
+
+/* Glowing Teacher Avatar */
+.teacher-avatar-frame {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(168,85,247,0.4), rgba(20,10,40,0.9));
+  border: 2px solid var(--xp-purple);
+  box-shadow: 0 0 20px rgba(168,85,247,0.5), inset 0 0 10px rgba(147,51,234,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  animation: teacherFloat 3s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes teacherFloat {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-5px) rotate(2deg); }
+}
+
+/* Teacher Speech Bubble */
+.teacher-speech-bubble {
+  background: rgba(18, 10, 36, 0.95);
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  border-radius: 14px;
+  padding: 1.1rem 1.25rem;
+  position: relative;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+}
+
+.teacher-speech-bubble::before {
+  content: '';
+  position: absolute;
+  left: -9px;
+  top: 24px;
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 9px solid rgba(168, 85, 247, 0.4);
+}
+
+/* Voice of Teacher Button */
+.voice-play-pill {
+  background: linear-gradient(135deg, rgba(147,51,234,0.25), rgba(79,70,229,0.25));
+  border: 1px solid rgba(168,85,247,0.5);
+  color: #e9d5ff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.35rem 0.85rem;
+  border-radius: 20px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.2s;
+}
+
+.voice-play-pill:hover {
+  background: linear-gradient(135deg, rgba(147,51,234,0.45), rgba(79,70,229,0.45));
+  border-color: var(--xp-glow);
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 0 12px rgba(168,85,247,0.4);
+}
+
+.voice-play-pill.speaking {
+  background: linear-gradient(135deg, rgba(239,68,68,0.3), rgba(185,28,28,0.4));
+  border-color: #f87171;
+  color: #fecaca;
+  animation: pulseGlow 1.5s infinite;
+}
+
+/* 4-Stage Study Quest Map */
+.study-stages-nav {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+@media (max-width: 640px) {
+  .study-stages-nav {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.study-stage-tab {
+  background: rgba(12, 6, 26, 0.85);
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 0.75rem 0.6rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  position: relative;
+}
+
+.study-stage-tab:hover {
+  border-color: rgba(168,85,247,0.4);
+  background: rgba(147,51,234,0.1);
+  transform: translateY(-2px);
+}
+
+.study-stage-tab.active {
+  background: linear-gradient(135deg, rgba(147,51,234,0.22), rgba(30,12,60,0.9));
+  border-color: var(--xp-purple);
+  box-shadow: 0 0 16px rgba(147,51,234,0.35), 0 4px 0 #581c87;
+  transform: translateY(-2px);
+}
+
+.study-stage-tab.completed {
+  border-color: rgba(34, 197, 94, 0.5);
+  background: rgba(34, 197, 94, 0.08);
+}
+
+.study-stage-tab.completed::after {
+  content: '✓';
+  position: absolute;
+  top: 5px;
+  right: 6px;
+  font-size: 0.65rem;
+  font-weight: 900;
+  color: #4ade80;
+  background: rgba(34,197,94,0.2);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Gamified Interactive Drill Card */
+.drill-option-card {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.18s;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.88rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.drill-option-card:hover {
+  border-color: rgba(168, 85, 247, 0.6);
+  background: rgba(147, 51, 234, 0.15);
+  transform: translateX(4px);
+}
+
+.drill-option-card.correct {
+  border-color: #22c55e !important;
+  background: rgba(34, 197, 94, 0.2) !important;
+  color: #fff !important;
+  box-shadow: 0 0 16px rgba(34, 197, 94, 0.3);
+}
+
+.drill-option-card.wrong {
+  border-color: #ef4444 !important;
+  background: rgba(239, 68, 68, 0.2) !important;
+  color: #fca5a5 !important;
+}
+
+/* Grandmaster Buff Pulsing Glow */
+.grandmaster-buff-banner {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(20, 10, 40, 0.95));
+  border: 1.5px solid rgba(245, 158, 11, 0.5);
+  border-radius: 14px;
+  padding: 1rem 1.25rem;
+  box-shadow: 0 0 25px rgba(245, 158, 11, 0.25);
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+
+/* ---------------- AI VIDEO LECTURE & SIMULATION THEATER ---------------- */
+
+.ai-video-theater {
+  background: #080412;
+  border: 1.5px solid rgba(168, 85, 247, 0.4);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7), 0 0 30px rgba(147, 51, 234, 0.2);
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.ai-video-screen {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: radial-gradient(circle at 50% 50%, #150a2a 0%, #05020a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.ai-video-screen canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.video-live-badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: rgba(239, 68, 68, 0.85);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+  letter-spacing: 0.08em;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  z-index: 5;
+}
+
+.video-live-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #fff;
+  animation: pulse 1s infinite;
+}
+
+.video-resolution-badge {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: rgba(0, 0, 0, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--gold-glow);
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+  z-index: 5;
+}
+
+.video-subtitles-ribbon {
+  position: absolute;
+  bottom: 14px;
+  left: 20px;
+  right: 20px;
+  background: rgba(10, 5, 20, 0.88);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  backdrop-filter: blur(8px);
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  text-align: center;
+  color: #f3e8ff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.4;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  transition: all 0.25s ease;
+  z-index: 5;
+}
+
+.video-controls-panel {
+  background: rgba(15, 8, 30, 0.95);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.85rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.video-timeline-bar {
+  width: 100%;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+  cursor: pointer;
+  position: relative;
+  transition: height 0.15s;
+}
+
+.video-timeline-bar:hover {
+  height: 8px;
+}
+
+.video-timeline-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #7c3aed, #f59e0b);
+  border-radius: 3px;
+  width: 0%;
+  position: relative;
+  transition: width 0.1s linear;
+}
+
+.video-timeline-fill::after {
+  content: '';
+  position: absolute;
+  right: -5px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 8px #f59e0b;
+}
+
+.video-btn-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.video-play-btn {
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  border: none;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #fff;
+  font-size: 1rem;
+  transition: all 0.15s;
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+}
+
+.video-play-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.6);
+}
+

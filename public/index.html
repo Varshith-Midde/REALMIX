@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-Life Quest | Turn Real Goals into an RPG</title>
+  <meta name="description" content="AI-powered RPG productivity platform converting your real-life goals into personalized quests, campaigns, boss battles, rewards, and real progression.">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/three3d.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚔️</text></svg>">
+</head>
+<body>
+
+  <!-- 3D INTERACTIVE THREE.JS BACKGROUND CANVAS -->
+  <canvas id="threeDCanvas"></canvas>
+
+  <!-- TOP APP HUD -->
+  <header class="app-header">
+    <div class="hud-container">
+      
+      <!-- Brand -->
+      <div class="brand-wrapper" id="brandBtn">
+        <div class="brand-logo-shield">⚔️</div>
+        <div>
+          <h1 class="brand-title">REAL-LIFE QUEST</h1>
+          <div class="brand-sub">The Real-World RPG OS</div>
+        </div>
+      </div>
+
+      <!-- Hero Real-time HUD Bar -->
+      <div class="hud-hero-bar" id="hudHeroBar">
+        <div class="hud-stat-pill">
+          <span id="hudAvatar">⚔️</span>
+          <span id="hudUsername" style="font-weight: 700;">Adventurer</span>
+          <span class="hero-level-tag" id="hudLevelBadge">LVL 1</span>
+        </div>
+
+        <div class="hud-xp-box">
+          <div class="hud-xp-label">
+            <span>XP</span>
+            <span id="hudXpPercent">0%</span>
+          </div>
+          <div class="hud-xp-track">
+            <div class="hud-xp-fill" id="hudXpFill" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <div class="hud-stat-pill gold-badge">
+          <span>🪙</span>
+          <span id="hudGold">0</span>
+        </div>
+
+        <div class="hud-stat-pill streak-badge" id="hudStreakPill" title="Daily Active Streak">
+          <span>🔥</span>
+          <span id="hudStreak">1</span>
+          <span id="hudShieldIndicator" style="font-size: 0.8rem;" title="Streak Shield Active">🛡️</span>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="hud-nav" id="desktopNav">
+        <button class="nav-tab-btn active" data-view="dashboard">🏠 Dashboard</button>
+        <button class="nav-tab-btn" data-view="campaign">🗺️ Campaign</button>
+        <button class="nav-tab-btn" data-view="boss">🐉 Boss</button>
+        <button class="nav-tab-btn" data-view="telangana">🏛️ TG Board</button>
+        <button class="nav-tab-btn" data-view="shop">🎒 Shop & Vault</button>
+        <button class="nav-tab-btn" data-view="achievements">🏆 Badges</button>
+        <button class="nav-tab-btn" data-view="gameMaster">🤖 Game Master</button>
+      </nav>
+
+      <!-- Action Utilities -->
+      <div class="hud-actions">
+        <button class="icon-btn" id="audioToggleBtn" title="Toggle RPG Sound Effects">🔊</button>
+        <button class="btn-primary btn-sm" id="newCampaignBtn">✨ New Goal</button>
+        <button class="btn-secondary btn-sm" id="demoSwitchBtn" title="Load Instant Demo Hero">⚡ Demo</button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN VIEW CONTAINER -->
+  <main class="main-content" id="viewContainer">
+    <!-- Views rendered dynamically via JavaScript -->
+  </main>
+
+  <!-- MOBILE BOTTOM NAVIGATION -->
+  <div class="mobile-nav-bar" id="mobileNav">
+    <button class="nav-tab-btn active" data-view="dashboard" title="Dashboard">🏠</button>
+    <button class="nav-tab-btn" data-view="campaign" title="Campaign Map">🗺️</button>
+    <button class="nav-tab-btn" data-view="telangana" title="Telangana Board">🏛️</button>
+    <button class="nav-tab-btn" data-view="boss" title="Boss Arena">🐉</button>
+    <button class="nav-tab-btn" data-view="shop" title="Shop & Real Money Vault">🎒</button>
+    <button class="nav-tab-btn" data-view="gameMaster" title="AI Game Master">🤖</button>
+  </div>
+
+  <!-- MODAL: ACTIVE QUEST TIMER -->
+  <div class="modal-overlay" id="questTimerModal">
+    <div class="modal-box">
+      <div class="section-header" style="margin-bottom: 0.75rem;">
+        <span class="badge badge-build" id="modalQuestBadge">⚔️ QUEST IN PROGRESS</span>
+        <button class="icon-btn" id="closeTimerModalBtn" style="width: 32px; height: 32px;">✕</button>
+      </div>
+
+      <h2 id="modalQuestTitle" style="font-family: var(--font-rpg); font-size: 1.35rem; margin-bottom: 0.5rem;">Build Responsive Landing Page</h2>
+      <p id="modalQuestDesc" style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;"></p>
+
+      <div style="background: rgba(0,0,0,0.4); border-radius: var(--radius-md); padding: 1.5rem; text-align: center; border: 1px solid var(--border-subtle); margin-bottom: 1.5rem;">
+        <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); margin-bottom: 0.25rem;">Active Focus Timer</div>
+        <div id="questTimerDisplay" style="font-family: var(--font-mono); font-size: 2.8rem; font-weight: 700; color: #fff; text-shadow: 0 0 15px rgba(168, 85, 247, 0.6);">00:00:00</div>
+        
+        <div style="display: flex; justify-content: center; gap: 0.75rem; margin-top: 1rem;">
+          <button class="btn-secondary btn-sm" id="pauseResumeTimerBtn">⏸️ Pause</button>
+          <button class="btn-secondary btn-sm" id="resetTimerBtn">🔄 Reset</button>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 0.35rem; color: var(--text-muted);">Quest Proof / Reflection Notes (Optional):</label>
+        <textarea id="questNotesInput" placeholder="What did you learn or build during this quest? (e.g. Built CSS grid, resolved 3 bugs)" rows="3" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.65rem; color: #fff; font-family: var(--font-sans); font-size: 0.88rem; outline: none;"></textarea>
+      </div>
+
+      <div style="display: flex; gap: 0.75rem;">
+        <button class="btn-primary" id="confirmCompleteQuestBtn" style="flex: 1;">⚔️ Complete Quest & Claim Loot</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: QUEST COMPLETION LOOT POPUP -->
+  <div class="modal-overlay" id="questRewardModal">
+    <div class="modal-box rpg-card-gold" style="text-align: center;">
+      <div style="font-size: 3.5rem; margin-bottom: 0.5rem;">⚔️</div>
+      <h2 style="font-family: var(--font-rpg); font-size: 1.8rem; color: var(--gold-glow); margin-bottom: 0.25rem;">QUEST COMPLETE!</h2>
+      <p id="rewardModalQuestTitle" style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;"></p>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+        <div style="background: rgba(168, 85, 247, 0.12); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: var(--radius-md); padding: 1rem;">
+          <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">XP Earned</div>
+          <div id="rewardXpDisplay" style="font-family: var(--font-rpg); font-size: 1.6rem; font-weight: 800; color: var(--xp-glow);">+150 XP</div>
+        </div>
+        <div style="background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: var(--radius-md); padding: 1rem;">
+          <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Gold Loot</div>
+          <div id="rewardGoldDisplay" style="font-family: var(--font-rpg); font-size: 1.6rem; font-weight: 800; color: var(--gold-glow);">+75 🪙</div>
+        </div>
+      </div>
+
+      <div id="rewardBossSection" style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--radius-md); padding: 0.85rem; margin-bottom: 1.5rem; font-size: 0.88rem;">
+        🐉 Dealt <strong id="rewardBossDamageText" style="color: #ef4444;">-180 HP</strong> damage to active Boss!
+      </div>
+
+      <div id="rewardStatsGained" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;"></div>
+
+      <button class="btn-gold" id="closeRewardModalBtn" style="width: 100%; padding: 0.85rem;">Continue Adventure</button>
+    </div>
+  </div>
+
+  <!-- MODAL: LEVEL UP POPUP -->
+  <div class="modal-overlay" id="levelUpModal">
+    <div class="modal-box" style="text-align: center; border-color: var(--xp-glow); box-shadow: 0 0 50px rgba(168, 85, 247, 0.4);">
+      <div class="star-celebrate" style="font-size: 4rem; margin-bottom: 0.5rem;">⭐</div>
+      <h2 style="font-family: var(--font-rpg); font-size: 2.2rem; background: linear-gradient(180deg, #fff, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.25rem;">LEVEL UP!</h2>
+      <div id="newLevelBadgeText" style="font-family: var(--font-rpg); font-size: 1.5rem; color: var(--gold-glow); font-weight: 800; margin-bottom: 1rem;">LEVEL 2</div>
+      <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">Your power expands! All character stats increased, and you've unlocked harder quest tiers.</p>
+      
+      <div style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: var(--radius-md); padding: 0.75rem; margin-bottom: 1.5rem; font-weight: 700; color: var(--gold-glow);">
+        🎁 +100 Gold Level Bonus Awarded!
+      </div>
+
+      <button class="btn-primary" id="closeLevelUpModalBtn" style="width: 100%;">Claim Might & Proceed</button>
+    </div>
+  </div>
+
+  <!-- MODAL: NEW GOAL / CAMPAIGN ONBOARDING WIZARD -->
+  <div class="modal-overlay" id="newGoalModal">
+    <div class="modal-box" style="max-width: 600px;">
+      <div class="section-header" style="margin-bottom: 0.75rem;">
+        <h2 style="font-family: var(--font-rpg); font-size: 1.4rem;">⚔️ Forge New Campaign</h2>
+        <button class="icon-btn" id="closeGoalModalBtn" style="width: 32px; height: 32px;">✕</button>
+      </div>
+      <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.25rem;">
+        Input what you want to achieve. The AI Game Master will translate your goal into a multi-chapter campaign with quests, XP, and a Final Boss.
+      </p>
+
+      <form id="campaignWizardForm">
+        <div style="margin-bottom: 1.15rem;">
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">What is your primary goal?</label>
+          <input type="text" id="wizardGoalTitle" placeholder="e.g. Become good at Web Development, Crack Semester Exams, Run 10k" required style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.75rem; color: #fff; font-size: 0.95rem; outline: none;">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.15rem;">
+          <div>
+            <label style="display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 0.35rem;">Category</label>
+            <select id="wizardCategory" style="width: 100%; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.7rem; color: #fff; font-size: 0.9rem; outline: none;">
+              <option value="career">💻 Career & Coding</option>
+              <option value="education">📚 Education & Exams</option>
+              <option value="fitness">💪 Fitness & Health</option>
+              <option value="personal">🧠 Personal Discipline</option>
+              <option value="money">💰 Money & Startup</option>
+            </select>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 0.35rem;">Your Current Level</label>
+            <select id="wizardLevel" style="width: 100%; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.7rem; color: #fff; font-size: 0.9rem; outline: none;">
+              <option value="beginner">Beginner (Starting fresh)</option>
+              <option value="intermediate">Intermediate (Some foundation)</option>
+              <option value="advanced">Advanced (Deep mastery)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+          <div>
+            <label style="display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 0.35rem;">Available Time / Day</label>
+            <select id="wizardMinutes" style="width: 100%; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.7rem; color: #fff; font-size: 0.9rem; outline: none;">
+              <option value="20">20 minutes</option>
+              <option value="35" selected>35 - 45 minutes</option>
+              <option value="60">1 hour</option>
+              <option value="120">2 hours</option>
+            </select>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 0.35rem;">Target Deadline</label>
+            <select id="wizardDeadline" style="width: 100%; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 0.7rem; color: #fff; font-size: 0.9rem; outline: none;">
+              <option value="14 days">14 Days (Sprint Arc)</option>
+              <option value="30 days" selected>30 Days (Standard Arc)</option>
+              <option value="60 days">60 Days (Grand Campaign)</option>
+              <option value="90 days">90 Days (Mastery Arc)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem;">
+          <button type="submit" class="btn-primary" id="generateCampaignSubmitBtn" style="flex: 1; padding: 0.85rem;">
+            🧙 Summon AI Campaign
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CANVAS FOR PARTICLE / CONFETTI -->
+  <canvas id="confettiCanvas"></canvas>
+
+  <!-- 3D LIBRARIES & SCRIPTS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="js/threeScene.js"></script>
+  <script src="js/tilt3d.js"></script>
+
+  <!-- APP SCRIPTS -->
+  <script src="js/audio.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/views/dashboard.js"></script>
+  <script src="js/views/campaign.js"></script>
+  <script src="js/views/boss.js"></script>
+  <script src="js/views/profile.js"></script>
+  <script src="js/views/telangana.js"></script>
+  <script src="js/views/shop.js"></script>
+  <script src="js/views/achievements.js"></script>
+  <script src="js/views/gameMaster.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
