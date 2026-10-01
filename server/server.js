@@ -20,8 +20,13 @@ const { getTopicStudyAndQuiz } = require('./studyEngine');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const FRONTEND_URL = (process.env.FRONTEND_URL || '').trim();
 
-app.use(cors());
+app.use(cors({
+  origin: FRONTEND_URL || true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'x-user-id']
+}));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'public')));
 

@@ -1,5 +1,8 @@
 // Frontend API Client for Real-Life Quest
-const API_BASE = '/api';
+// Set window.REALMIX_API_URL in config.js for production, e.g.
+// window.REALMIX_API_URL = 'https://your-real-mix-backend.onrender.com';
+const configuredApiUrl = (window.REALMIX_API_URL || '').trim().replace(/\/$/, '');
+const API_BASE = configuredApiUrl ? `${configuredApiUrl}/api` : '/api';
 
 class ApiService {
   constructor() {
